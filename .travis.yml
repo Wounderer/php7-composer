@@ -1,0 +1,17 @@
+sudo: required
+
+language: c
+
+services:
+  - docker
+
+script: make test
+
+after_success:
+  - make build
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    ${TRAVIS_BUILD_DIR}/bin/trigger-docker;
+    COMPOSER_VERSION=`cat ${TRAVIS_BUILD_DIR}/composer-version`;
+    docker login -u="${DOCKER_USER}" -p="${DOCKER_SECRET}";
+    docker push "${DOCKER_USER}/${DOCKER_REPO}:${COMPOSER_VERSION}";
+    fi
